@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ArrowRight, BarChart3, Bell, Brain, CandlestickChart, CircleDollarSign, Newspaper, ShieldCheck, TrendingUp, Users } from 'lucide-react';
 import './styles.css';
@@ -9,17 +9,58 @@ const watchlist = [
   { ticker: 'MRVL', label: 'Marvell', note: 'Semiconductors + data centers' },
   { ticker: 'WDC', label: 'Western Digital', note: 'Storage + cloud demand' },
   { ticker: 'NVDA', label: 'NVIDIA', note: 'AI hardware leader' },
-  { ticker: 'AMD', label: 'Advanced Micro Devices', note: 'AI chips + compute' }
+  { ticker: 'AMD', label: 'Advanced Micro Devices', note: 'AI chips + compute' },
 ];
 
-const sections = [
-  { icon: TrendingUp, title: 'Market Signals', text: 'Track trending sectors, AI momentum, tech rotation, earnings moves, and major market shifts.' },
-  { icon: CircleDollarSign, title: 'Dividend Watch', text: 'Compare dividend yield, payout stability, growth history, and long-term income potential.' },
-  { icon: Brain, title: 'AI + Future Tech', text: 'Follow semiconductors, cloud, data centers, cybersecurity, energy demand, and automation trends.' },
-  { icon: Bell, title: 'Watchlist Alerts', text: 'Create simple signals for what to watch, what needs research, and what may be getting overheated.' }
-];
+function useLivePrices(tickers) {
+  const [prices, setPrices] = useState({});
+
+  useEffect(() => {
+    async function fetchAll() {
+      const results = {};
+      await Promise.all(
+        tickers.map(async (ticker) => {
+          try {
+            const res = await fetch(`/api/quote?ticker=${ticker}`);
+            const data = await res.json();
+            const meta = data.chart.result[0].meta;
+            const price = meta.regularMarketPrice;
+            const prev = meta.chartPreviousClose;
+            const change = price - prev;
+            const pct = (change / prev) * 100;
+            results[ticker] = { price, change, pct };
+          } catch {
+            results[ticker] = null;
+          }
+        })
+      );
+      setPrices(results);
+    }
+
+    fetchAll();
+    const interval = setInterval(fetchAll, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return prices;
+}
+
+function PriceTag({ data }) {
+  if (!data) return <em>Research</em>;
+  const up = data.change >= 0;
+  return (
+    <div style={{ textAlign: 'right' }}>
+      <div style={{ fontWeight: 700, fontSize: 15 }}>${data.price.toFixed(2)}</div>
+      <div style={{ fontSize: 13, color: up ? '#4ade80' : '#f87171' }}>
+        {up ? '▲' : '▼'} {Math.abs(data.pct).toFixed(2)}%
+      </div>
+    </div>
+  );
+}
 
 function App() {
+  const prices = useLivePrices(watchlist.map(w => w.ticker));
+
   return (
     <div className="page">
       <div className="glow glow-one" />
@@ -42,10 +83,7 @@ function App() {
           <div className="hero-copy">
             <div className="pill"><BarChart3 size={16} /> Private market intelligence dashboard</div>
             <h2>Track trends. Read the signals. Invest with intention.</h2>
-            <p>
-              A clean, beginner-friendly investment intelligence hub for AI stocks, dividend ideas, tech trends,
-              market watchlists, and long-term investor education.
-            </p>
+            <p>A clean, beginner-friendly investment intelligence hub for AI stocks, dividend ideas, tech trends, market watchlists, and long-term investor education.</p>
             <div className="actions">
               <a className="button button-cyan" href="#newsletter">Get Weekly Signals <ArrowRight size={16} /></a>
               <a className="button button-outline" href="#dashboard">Enter Dashboard</a>
@@ -57,7 +95,7 @@ function App() {
             <div className="card-head">
               <div>
                 <span>Dashboard Preview</span>
-                <h3>Today’s Watchlist</h3>
+                <h3>Today's Watchlist</h3>
               </div>
               <b>Live MVP</b>
             </div>
@@ -69,7 +107,7 @@ function App() {
                     <strong>{item.label}</strong>
                     <span>{item.note}</span>
                   </div>
-                  <em>Research</em>
+                  <PriceTag data={prices[item.ticker]} />
                 </div>
               ))}
             </div>
@@ -77,7 +115,12 @@ function App() {
         </section>
 
         <section className="feature-grid">
-          {sections.map(({ icon: Icon, title, text }) => (
+          {[
+            { icon: TrendingUp, title: 'Market Signals', text: 'Track trending sectors, AI momentum, tech rotation, earnings moves, and major market shifts.' },
+            { icon: CircleDollarSign, title: 'Dividend Watch', text: 'Compare dividend yield, payout stability, growth history, and long-term income potential.' },
+            { icon: Brain, title: 'AI + Future Tech', text: 'Follow semiconductors, cloud, data centers, cybersecurity, energy demand, and automation trends.' },
+            { icon: Bell, title: 'Watchlist Alerts', text: 'Create simple signals for what to watch, what needs research, and what may be getting overheated.' },
+          ].map(({ icon: Icon, title, text }) => (
             <article className="feature-card" key={title}>
               <div className="feature-icon"><Icon size={24} /></div>
               <h3>{title}</h3>
@@ -100,7 +143,6 @@ function App() {
               <span>Long-term investor notes</span>
             </div>
           </article>
-
           <article className="wide-card community">
             <div className="section-title"><Users size={24} /><h3>Discord Room</h3></div>
             <p>A private community for market discussion, watchlist notes, alerts, and beginner-friendly investing education.</p>
@@ -112,10 +154,7 @@ function App() {
           <ShieldCheck size={26} />
           <div>
             <h3>Responsible Investing Note</h3>
-            <p>
-              Stock Signals is for education, research organization, and market awareness only. It does not provide personalized financial advice,
-              buy/sell instructions, or guaranteed returns. Always verify data and speak with a licensed financial professional before making investment decisions.
-            </p>
+            <p>Stock Signals is for education, research organization, and market awareness only. It does not provide personalized financial advice, buy/sell instructions, or guaranteed returns. Always verify data and speak with a licensed financial professional before making investment decisions.</p>
           </div>
         </section>
       </main>

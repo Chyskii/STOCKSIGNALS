@@ -4,13 +4,13 @@ body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, B
 a { color: inherit; text-decoration: none; }
 .page { min-height: 100vh; position: relative; overflow: hidden; }
 .glow { position: absolute; border-radius: 999px; filter: blur(80px); pointer-events: none; }
-.glow-one { width: 340px; height: 340px; background: rgba(139, 92, 246, .28); top: -120px; left: 50%; transform: translateX(-50%); }
+.glow-one { width: 340px; height: 340px; background: rgba(253,230,138,.18); top: -120px; left: 50%; transform: translateX(-50%); }
 .glow-two { width: 360px; height: 360px; background: rgba(34, 211, 238, .12); top: 360px; right: 20px; }
 .glow-three { width: 320px; height: 320px; background: rgba(16, 185, 129, .12); bottom: 50px; left: 20px; }
 .header, .main { max-width: 1180px; margin: 0 auto; position: relative; z-index: 2; }
 .header { display: flex; justify-content: space-between; align-items: center; padding: 28px 24px; }
 .brand { display: flex; gap: 12px; align-items: center; }
-.brand-icon { width: 44px; height: 44px; border-radius: 18px; display: grid; place-items: center; background: rgba(255,255,255,.10); color: #67e8f9; border: 1px solid rgba(255,255,255,.10); }
+.brand-icon { width: 44px; height: 44px; border-radius: 18px; display: grid; place-items: center; background: rgba(255,255,255,.10); color: #fde68a; border: 1px solid rgba(255,255,255,.10); }
 .brand h1 { font-size: 20px; margin: 0; }
 .brand p { margin: 2px 0 0; color: rgba(255,255,255,.5); font-size: 12px; }
 .main { padding: 34px 24px 70px; }
@@ -21,7 +21,7 @@ a { color: inherit; text-decoration: none; }
 .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
 .button { border-radius: 18px; padding: 13px 19px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; border: 1px solid transparent; }
 .button-light { background: #fff; color: #080A12; }
-.button-cyan { background: #67e8f9; color: #071018; }
+.button-cyan { background: #fde68a; color: #1a1400; }
 .button-outline { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.14); }
 .button-violet { background: #c4b5fd; color: #10091f; width: 100%; margin-top: 22px; }
 .hero-copy small { display: block; margin-top: 16px; color: rgba(255,255,255,.42); }
@@ -39,16 +39,16 @@ a { color: inherit; text-decoration: none; }
 .stock-row em { font-style: normal; background: rgba(255,255,255,.06); color: rgba(255,255,255,.58); border-radius: 999px; padding: 6px 10px; font-size: 12px; }
 .feature-grid { margin-top: 64px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .feature-card { border-radius: 26px; padding: 24px; }
-.feature-icon { width: 50px; height: 50px; display: grid; place-items: center; border-radius: 18px; background: rgba(103,232,249,.10); color: #a5f3fc; border: 1px solid rgba(103,232,249,.16); }
+.feature-icon { width: 50px; height: 50px; display: grid; place-items: center; border-radius: 18px; background: rgba(253,230,138,.10); color: #fef08a; border: 1px solid rgba(253,230,138,.16); }
 .feature-card h3 { margin: 18px 0 8px; }
 .feature-card p, .wide-card p, .disclaimer p { color: rgba(255,255,255,.58); line-height: 1.7; }
 .split-section { margin-top: 64px; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
 .wide-card { border-radius: 34px; padding: 30px; }
-.section-title { display: flex; gap: 12px; align-items: center; color: #67e8f9; }
+.section-title { display: flex; gap: 12px; align-items: center; color: #fde68a; }
 .section-title h3 { color: white; font-size: 26px; margin: 0; }
 .signup { display: flex; gap: 10px; margin-top: 22px; }
 .signup input { flex: 1; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,.12); background: rgba(0,0,0,.25); color: white; outline: none; }
-.signup button { border: 0; border-radius: 16px; padding: 0 18px; font-weight: 800; background: #67e8f9; color: #071018; }
+.signup button { border: 0; border-radius: 16px; padding: 0 18px; font-weight: 800; background: #fde68a; color: #1a1400; }
 .mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
 .mini-grid span { background: rgba(0,0,0,.25); border-radius: 16px; padding: 14px; color: rgba(255,255,255,.64); font-size: 14px; }
 .disclaimer { display: flex; gap: 16px; align-items: flex-start; margin-top: 64px; border-radius: 30px; padding: 28px; }
