@@ -1,163 +1,69 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowRight, BarChart3, Bell, Brain, CandlestickChart, CircleDollarSign, Newspaper, ShieldCheck, TrendingUp, Users } from 'lucide-react';
+import Navbar from './components/Navbar.jsx';
+import Footer from './components/Footer.jsx';
+import Home from './pages/Home.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+import Watchlist from './pages/Watchlist.jsx';
+import Education from './pages/Education.jsx';
+import Community from './pages/Community.jsx';
+import Disclaimer from './pages/Disclaimer.jsx';
+import Screener from './pages/Screener.jsx';
+import Portfolio from './pages/Portfolio.jsx';
 import './styles.css';
 
-const watchlist = [
-  { ticker: 'QQQ', label: 'Tech ETF', note: 'NASDAQ-100 exposure' },
-  { ticker: 'MU', label: 'Micron', note: 'Memory + AI infrastructure' },
-  { ticker: 'MRVL', label: 'Marvell', note: 'Semiconductors + data centers' },
-  { ticker: 'WDC', label: 'Western Digital', note: 'Storage + cloud demand' },
-  { ticker: 'NVDA', label: 'NVIDIA', note: 'AI hardware leader' },
-  { ticker: 'AMD', label: 'Advanced Micro Devices', note: 'AI chips + compute' },
-];
-
-function useLivePrices(tickers) {
-  const [prices, setPrices] = useState({});
-
-  useEffect(() => {
-    async function fetchAll() {
-      const results = {};
-      await Promise.all(
-        tickers.map(async (ticker) => {
-          try {
-            const res = await fetch(`/api/quote?ticker=${ticker}`);
-            const data = await res.json();
-            const meta = data.chart.result[0].meta;
-            const price = meta.regularMarketPrice;
-            const prev = meta.chartPreviousClose;
-            const change = price - prev;
-            const pct = (change / prev) * 100;
-            results[ticker] = { price, change, pct };
-          } catch {
-            results[ticker] = null;
-          }
-        })
-      );
-      setPrices(results);
-    }
-
-    fetchAll();
-    const interval = setInterval(fetchAll, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return prices;
-}
-
-function PriceTag({ data }) {
-  if (!data) return <em>Research</em>;
-  const up = data.change >= 0;
-  return (
-    <div style={{ textAlign: 'right' }}>
-      <div style={{ fontWeight: 700, fontSize: 15 }}>${data.price.toFixed(2)}</div>
-      <div style={{ fontSize: 13, color: up ? '#4ade80' : '#f87171' }}>
-        {up ? '▲' : '▼'} {Math.abs(data.pct).toFixed(2)}%
-      </div>
-    </div>
-  );
-}
+const ROUTES = {
+  '/':           Home,
+  '/dashboard':  Dashboard,
+  '/watchlist':  Watchlist,
+  '/screener':   Screener,
+  '/portfolio':  Portfolio,
+  '/education':  Education,
+  '/community':  Community,
+  '/disclaimer': Disclaimer,
+};
 
 function App() {
-  const prices = useLivePrices(watchlist.map(w => w.ticker));
+  const [path, setPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handler = () => setPath(window.location.pathname);
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
+  }, []);
+
+  useEffect(() => {
+    function handleClick(e) {
+      const a = e.target.closest('a');
+      if (!a) return;
+      const href = a.getAttribute('href');
+      if (!href || href.startsWith('http') || href.startsWith('mailto') || href.startsWith('#') || a.target === '_blank') return;
+      e.preventDefault();
+      window.history.pushState({}, '', href);
+      setPath(href);
+      window.scrollTo(0, 0);
+    }
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, []);
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      setTimeout(() => {
+        const el = document.querySelector(hash);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [path]);
+
+  const Page = ROUTES[path] || Home;
 
   return (
     <div className="page">
-      <div className="glow glow-one" />
-      <div className="glow glow-two" />
-      <div className="glow glow-three" />
-
-      <header className="header">
-        <div className="brand">
-          <div className="brand-icon"><CandlestickChart size={22} /></div>
-          <div>
-            <h1>Stock Signals</h1>
-            <p>Signals over noise.</p>
-          </div>
-        </div>
-        <a className="button button-light" href="#newsletter">Join the Waitlist</a>
-      </header>
-
-      <main className="main">
-        <section className="hero">
-          <div className="hero-copy">
-            <div className="pill"><BarChart3 size={16} /> Private market intelligence dashboard</div>
-            <h2>Track trends. Read the signals. Invest with intention.</h2>
-            <p>A clean, beginner-friendly investment intelligence hub for AI stocks, dividend ideas, tech trends, market watchlists, and long-term investor education.</p>
-            <div className="actions">
-              <a className="button button-cyan" href="#newsletter">Get Weekly Signals <ArrowRight size={16} /></a>
-              <a className="button button-outline" href="#dashboard">Enter Dashboard</a>
-            </div>
-            <small>Educational resource only. Not financial advice. Always do your own research.</small>
-          </div>
-
-          <div className="dashboard-card" id="dashboard">
-            <div className="card-head">
-              <div>
-                <span>Dashboard Preview</span>
-                <h3>Today's Watchlist</h3>
-              </div>
-              <b>Live MVP</b>
-            </div>
-            <div className="watchlist">
-              {watchlist.map((item) => (
-                <div className="stock-row" key={item.ticker}>
-                  <div className="ticker">{item.ticker}</div>
-                  <div className="stock-info">
-                    <strong>{item.label}</strong>
-                    <span>{item.note}</span>
-                  </div>
-                  <PriceTag data={prices[item.ticker]} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="feature-grid">
-          {[
-            { icon: TrendingUp, title: 'Market Signals', text: 'Track trending sectors, AI momentum, tech rotation, earnings moves, and major market shifts.' },
-            { icon: CircleDollarSign, title: 'Dividend Watch', text: 'Compare dividend yield, payout stability, growth history, and long-term income potential.' },
-            { icon: Brain, title: 'AI + Future Tech', text: 'Follow semiconductors, cloud, data centers, cybersecurity, energy demand, and automation trends.' },
-            { icon: Bell, title: 'Watchlist Alerts', text: 'Create simple signals for what to watch, what needs research, and what may be getting overheated.' },
-          ].map(({ icon: Icon, title, text }) => (
-            <article className="feature-card" key={title}>
-              <div className="feature-icon"><Icon size={24} /></div>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </article>
-          ))}
-        </section>
-
-        <section className="split-section" id="newsletter">
-          <article className="wide-card">
-            <div className="section-title"><Newspaper size={24} /><h3>Stock Signals Weekly</h3></div>
-            <p>A weekly newsletter covering AI trends, dividend watchlists, major sector moves, credible investor lessons, and the signals worth paying attention to.</p>
-            <form className="signup" onSubmit={(e) => e.preventDefault()}>
-              <input type="email" placeholder="Enter your email" aria-label="Email address" />
-              <button type="submit">Join Newsletter</button>
-            </form>
-            <div className="mini-grid">
-              <span>AI + semiconductor trends</span>
-              <span>Dividend spotlight</span>
-              <span>Long-term investor notes</span>
-            </div>
-          </article>
-          <article className="wide-card community">
-            <div className="section-title"><Users size={24} /><h3>Discord Room</h3></div>
-            <p>A private community for market discussion, watchlist notes, alerts, and beginner-friendly investing education.</p>
-            <a className="button button-violet" href="#">Join Community</a>
-          </article>
-        </section>
-
-        <section className="disclaimer">
-          <ShieldCheck size={26} />
-          <div>
-            <h3>Responsible Investing Note</h3>
-            <p>Stock Signals is for education, research organization, and market awareness only. It does not provide personalized financial advice, buy/sell instructions, or guaranteed returns. Always verify data and speak with a licensed financial professional before making investment decisions.</p>
-          </div>
-        </section>
-      </main>
+      <Navbar />
+      <Page />
+      <Footer />
     </div>
   );
 }
